@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juegos - Curso</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <script type="module" src="./js/app.js"></script>
+</head>
+<body>
+    <header></header>
+    <main>
+        <p class="jumbo">Juegos</p>
+        <input type="text" id="api_key" placeholder="API Key">
+        <button id="b_load_games" type="button">Cargar</button>
+        <div class="games nodisplay">
+            <table class="table_games ">
+                <caption>Juegos disponibles</caption>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                    </tr>
+                </thead>
+                <tbody> </tbody>
+            </table>
+            <div class="botones">
+                <div id="prev" class="boton ocultar"><<</div>
+                <div id="next" class="boton">>></div>
+            </div>
+        </div>
+    </main>
+    <footer></footer>
+</body>
+</html>

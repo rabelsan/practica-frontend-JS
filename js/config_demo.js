@@ -1,0 +1,1 @@
+export const KEY = 'poner la API KEY de cada caso'
