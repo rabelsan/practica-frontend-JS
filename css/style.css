@@ -81,7 +81,7 @@ main form {
     display: none !important;
 }
 
-.ocultar {
+.novisibility {
     visibility: hidden;
 }
 
@@ -99,12 +99,10 @@ main form {
     font-style: italic;
 }
 
-.map {
-    margin-top: 1rem;
-    width: 100%;
-    height: 40vh;
-    background-color: grey;
-  }
+#error_msg {
+    color: red;
+    border: 0.1rem solid red;
+}
 
 div.games {
     width: 80%;

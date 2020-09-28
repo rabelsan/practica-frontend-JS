@@ -5,33 +5,37 @@ import { setSelectStrins } from './tools.js'
 
 function main() {
     let nodoKey
-    let gamesPage = 1
-    const storeUsers = 'usuarios'
+    let filmsPage = 1
+    const storeUsers = 'users'
+
+    //DOM nodes
+    const formReg = document.querySelector('#f_register')  
+    const regInput = formReg.querySelectorAll('input')
+    const aGender = formReg.querySelectorAll('[name="gender"]')
+    const btnReg =  formReg.querySelector('#b_register')
     const btnLog =  document.querySelector('#b_acceder')
-    const btnReg =  document.querySelector('#b_registrar')
-    const btnGeo = document.querySelector('#geo button')
     const btnLoad = document.querySelector('#b_load_paises')
     const btnSearch = document.querySelector('#b_libros')
     const btnGames = document.querySelector('#b_load_games')
     const btnprev = document.querySelector('#prev')
     const btnnext = document.querySelector('#next')
 
-    const aQuestions = document.querySelectorAll('.question')
+    
+    //Event Handlers definition
 
-    if(btnLog) {
+    //hide error paragraph
+    regInput.forEach(item => item.addEventListener('blur', blurManager))
+    
+    function blurManager() {
+        formReg.querySelector('p#error_msg').classList.add('novisibility')
+    }
+    if (btnLog) {
         btnLog.addEventListener('click', onClickLog)
     }
     if (btnReg) {
         btnReg.addEventListener('click', onClickReg)
     }
-    if (btnGeo) {
-        btnGeo.addEventListener('click', onClickGeo)
-    }
-    if (aQuestions) {
-        aQuestions.forEach(
-            item => item.addEventListener('click', onClickQuestion)
-        )
-    }
+    
     if(btnLoad) {
         btnLoad.addEventListener('click', onClickLoad)
     }
@@ -88,7 +92,7 @@ function main() {
 
     function onClickReg ()  {
         const formReg = document.querySelector('#f_register')
-        if (!validarForm(formReg)) {
+        if (!validateRegister(formReg)) {
             return 
         }
         const inputs = [...formReg.querySelectorAll('input')]
@@ -105,38 +109,45 @@ function main() {
         // window.location = 'index.html'
     }
 
-    function validarForm(form) {
+    function validateRegister(form) {
+        console.log('form.checkValidity()',form.checkValidity())
+        if(!form.checkValidity()) {
         const inputs = [...form.querySelectorAll('input')]
         try {
             inputs.forEach((item) => {
-                if(!item.value) {
-                    const error = new Error(`Campo ${item.id} invalido`)
-                    error.code = item.id
-                    throw error
+                switch(item.type) {
+                    case 'radio':
+                        const aGender = [...form.querySelectorAll('[name="gender"]')]
+                        if (aGender.filter(item => item.checked).length <= 0) {
+                            const error = new Error(`Campo ${item.name} incorrecto`)
+                            error.code = item.name
+                            throw error
+                        }
+                        break;
+                    default:
+                        if(!item.value) {
+                            const error = new Error(`Campo ${item.id} incorrecto`)
+                            error.code = item.id
+                            throw error
+                        }
+                        break;    
                 }
             })
             return true  
         } catch (error) {
             console.log(error.message)
             console.log(error.code)
-            // let input = confirm(error.message)
-            // alert(input)
+            
             let errorMsg
-            /* switch (error.message) {
-                case 'Campo i_nombre invalido':
-                    errorMsg = 'El nombre es obligatorio'
-                    break;
-                case 'Campo i_passwd invalido':
-                    errorMsg = 'La password es obligatoria'
-                    break;
-                default:
-                    errorMsg = 'Se ha produido un error'
-                    break;
-            } */
-
             switch (error.code) {
+                case 'gender':
+                    errorMsg = 'Es necesario seleccionar un género'
+                    break;
+                case 'i_email':
+                    errorMsg = 'Debe introducir un correo electrónico válido'
+                    break;
                 case 'i_nombre':
-                    errorMsg = 'El nombre es obligatorio'
+                    errorMsg = 'El nombre de usuario es obligatorio'
                     break;
                 case 'i_passwd':
                     errorMsg = 'La password es obligatoria'
@@ -145,53 +156,12 @@ function main() {
                     errorMsg = 'Se ha produido un error'
                     break;
             }
-
+            //show error paragraph
+            form.querySelector('p').classList.remove('novisibility')
             form.querySelector('p').innerHTML = errorMsg
             return false
         }
-
-    }
-
-    function onClickGeo() {
-        navigator.geolocation.getCurrentPosition(
-            (position)=>{
-                let size = 1.4
-                console.log(position)
-                const geoDiv = document.querySelector('#geo div').cloneNode()
-                geoDiv.title += ' del Nodo Clonado'
-                geoDiv.removeAttribute('hidden')
-                // geoDiv.style = "{font-size="+size+"rem}"
-                geoDiv.style.fontSize = size + "rem"
-                console.log(geoDiv)
-                console.dir(geoDiv)
-                geoDiv.innerHTML = `
-                <p>Latitud ${position.coords.latitude} </p>
-                <p>Longitud ${position.coords.longitude}</p>
-                `
-                document.querySelector('#geo').appendChild(geoDiv)
-                initMap({lat: position.coords.latitude, lng:position.coords.longitude})
-            }, 
-            (error)=>{
-                console.log(error)
-            })
-    }
-
-    function initMap(point = {lat: 52, lng: 0}) {
-        const map = new google.maps.Map(
-            document.querySelector('.map'),
-            {zoom: 8, center: point}
-        )
-        const marker = new google.maps.Marker(
-            {position: point, map: map}
-        )
-    }
-
-    function onClickQuestion(ev) {
-        console.log(ev.target.id)
-        document.querySelectorAll('.response').forEach(
-            item => item.classList.add('nodisplay')
-        )
-        ev.target.nextElementSibling.classList.remove('nodisplay')
+        }
     }
 
     function onClickLoad() {
@@ -265,8 +235,8 @@ function main() {
 
     function onClickGames() {
         let url = 'https://api-v3.igdb.com/games?fields=name' 
-        if (gamesPage > 1) {
-            url += '&offset=' + 10*(gamesPage-1)
+        if (filmsPage > 1) {
+            url += '&offset=' + 10*(filmsPage-1)
         } 
 
         if (!nodoKey.value) {
@@ -321,9 +291,9 @@ function main() {
     }
 
     function goToPage(n) {
-        gamesPage += n
+        filmsPage += n
         onClickGames()
-        if (gamesPage > 1) {
+        if (filmsPage > 1) {
             btnprev.classList.remove('ocultar')
         } else {
             btnprev.classList.add('ocultar')

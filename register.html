@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - CarteleraJS</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <script type="module" src="./js/app.js"></script>
+</head>
+
+<body>
+    <header></header>
+    <main>
+        <p class="jumbo">Registro</p>
+        <form id="f_register" action="">
+            <div>
+                <input type="radio" id="hombre" name="gender" value="Hombre" required>
+                <label for="hombre">Hombre</label>
+                <input type="radio" id="mujer" name="gender" value="Mujer">
+                <label for="mujer">Mujer</label>
+                <input type="radio" id="otros" name="gender" value="Otros">
+                <label for="otros">Otros</label>
+            </div>
+            <div>
+                <input type="email" id="i_email" placeholder="Correo" required>
+            </div>
+            <div>
+                <input type="text" id="i_nombre" placeholder="Nombre" required>
+            </div>
+            <div>
+                <input type="password" id="i_passwd" placeholder="Contraseña" required>
+            </div>
+            <div>
+                <p id="error_msg" class="novisibility"></p>
+            </div>
+            <div>
+                <button type="button" id="b_register">Registrar</button>
+            </div>
+        </form>
+    </main>
+    <footer></footer>
+</body>
+
+</html>

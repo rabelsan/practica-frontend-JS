@@ -4,11 +4,11 @@ export const templHeader = {
         switch (page) {
             case 'login.html':
                 menu = `
-                    <li><a href="./registro.html">Registro</a></li>
+                    <li><a href="./register.html">Registro</a></li>
                     <li><a href="./index.html">Inicio</a></li>
                     <li><a href="./about.html">Acerca de</a></li>`
                 break
-            case 'registro.html':
+            case 'register.html':
                 menu = `
                     <li><a href="./index.html">Inicio</a></li>
                     <li><a href="./login.html">Login</a></li>
@@ -34,7 +34,7 @@ export const templHeader = {
                 break               
             default:
                 menu = `
-                    <li><a href="./registro.html">Registro</a></li>
+                    <li><a href="./register.html">Registro</a></li>
                     <li><a href="./login.html">Login</a></li>
                     <li><a href="./about.html">Acerca de</a></li>`
                 break
@@ -43,6 +43,6 @@ export const templHeader = {
             <div class="menu">
                 <ul>${menu}</ul>
             </div>
-            <h1>Curso JS</h1>`
+            <h1>Cartelera JS</h1>`
     }
 } 
