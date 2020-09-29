@@ -12,15 +12,15 @@
 <body>
     <header></header>
     <main>
-        <p class="jumbo">Registro</p>
         <form id="f_register" action="">
             <div>
-                <input type="radio" id="hombre" name="gender" value="Hombre" required>
-                <label for="hombre">Hombre</label>
-                <input type="radio" id="mujer" name="gender" value="Mujer">
-                <label for="mujer">Mujer</label>
-                <input type="radio" id="otros" name="gender" value="Otros">
-                <label for="otros">Otros</label>
+                <div><label>Gender</label></div>
+                <input type="radio" id="male" name="gender" value="Male" required>
+                <label for="male">Male</label>
+                <input type="radio" id="mujer" name="gender" value="Female">
+                <label for="female">Female</label>
+                <input type="radio" id="other" name="gender" value="Other">
+                <label for="other">Other options</label>
             </div>
             <div>
                 <input type="email" id="i_email" placeholder="Correo" required>
@@ -35,7 +35,7 @@
                 <p id="error_msg" class="novisibility"></p>
             </div>
             <div>
-                <button type="button" id="b_register">Registrar</button>
+                <button type="button" id="b_register">Sign up</button>
             </div>
         </form>
     </main>

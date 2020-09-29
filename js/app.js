@@ -1,18 +1,17 @@
 import { templFooter } from '../templates/footer.js'
 import { templHeader } from '../templates/header.js'
 import { KEY } from './config.js'
-import { setSelectStrins } from './tools.js'
+import { setSelectStrings } from './tools.js'
 
 function main() {
     let nodoKey
     let filmsPage = 1
     const storeUsers = 'users'
-
+    
     //DOM nodes
-    const formReg = document.querySelector('#f_register')  
-    const regInput = formReg.querySelectorAll('input')
-    const aGender = formReg.querySelectorAll('[name="gender"]')
-    const btnReg =  formReg.querySelector('#b_register')
+    const formReg = document.querySelector('#f_register')
+    
+
     const btnLog =  document.querySelector('#b_acceder')
     const btnLoad = document.querySelector('#b_load_paises')
     const btnSearch = document.querySelector('#b_libros')
@@ -23,26 +22,23 @@ function main() {
     
     //Event Handlers definition
 
-    //hide error paragraph
-    regInput.forEach(item => item.addEventListener('blur', blurManager))
-    
-    function blurManager() {
-        formReg.querySelector('p#error_msg').classList.add('novisibility')
-    }
     if (btnLog) {
         btnLog.addEventListener('click', onClickLog)
     }
-    if (btnReg) {
-        btnReg.addEventListener('click', onClickReg)
+    if (formReg) {
+        formReg.querySelectorAll('input').forEach(item => 
+            item.addEventListener('focus', () => {onFocusManager(formReg)}))
+        /* const aGender = formReg.querySelectorAll('[name="gender"]') */
+        formReg.querySelector('#b_register').addEventListener('click', onClickReg)
     }
     
-    if(btnLoad) {
+    if (btnLoad) {
         btnLoad.addEventListener('click', onClickLoad)
     }
-    if(btnSearch){
+    if (btnSearch){
         btnSearch.addEventListener('click', onClickSearch)
     }
-    if(btnGames) {
+    if (btnGames) {
         btnGames.addEventListener('click', onClickGames)
         nodoKey = document.querySelector('#api_key')
         nodoKey.value = KEY
@@ -59,8 +55,7 @@ function main() {
     document.querySelector('header').innerHTML = templHeader.render(page)
 
     function onClickLog () {
-            
-        const formLogin = document.querySelector('#f_login')
+            const formLogin = document.querySelector('#f_login')
         
         if (!validarForm(formLogin)) {
             return 
@@ -79,15 +74,11 @@ function main() {
         } else {
             console.log('Usuario y password correctos')
             window.location = 'usuario.html'  
-            
-            // Ejemplo del uso de los metodos open(), close() y setTimeout()
-            // del objeto window 
-            
-            /* const handler = window.open('usuario.html')
-            setTimeout(()=>{
-                handler.close()
-            }, 2000) */
         }
+    }
+
+    function onFocusManager(form) {
+        form.querySelector('p#error_msg').classList.add('novisibility')
     }
 
     function onClickReg ()  {
@@ -118,14 +109,15 @@ function main() {
                 switch(item.type) {
                     case 'radio':
                         const aGender = [...form.querySelectorAll('[name="gender"]')]
-                        if (aGender.filter(item => item.checked).length <= 0) {
+                        if (!aGender[0].checkValidity()) {
                             const error = new Error(`Campo ${item.name} incorrecto`)
                             error.code = item.name
                             throw error
                         }
                         break;
                     default:
-                        if(!item.value) {
+                        console.dir(item, item.validityState[0])
+                        if (!item.checkValidity()) {
                             const error = new Error(`Campo ${item.id} incorrecto`)
                             error.code = item.id
                             throw error
@@ -195,7 +187,7 @@ function main() {
         console.log(data)
         const paises = data.map(item => item.name)
         console.log(paises)
-        setSelectStrins('paises', paises )
+        setSelectStrings('paises', paises )
     }
 
     function onClickSearch() {
