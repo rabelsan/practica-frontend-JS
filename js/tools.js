@@ -1,4 +1,4 @@
-export function setSelectStrings(id, data) {   
+export function setSelectItems(id, data) {   
     let html = '<option></option>'
     data.forEach(item => html += `
             <option value="${item}">${item}</option>`)

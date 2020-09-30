@@ -1,7 +1,7 @@
 import { templFooter } from '../templates/footer.js'
 import { templHeader } from '../templates/header.js'
 import { KEY } from './config.js'
-import { setSelectStrings } from './tools.js'
+import { setSelectItems } from './tools.js'
 
 function main() {
     let nodoKey
@@ -13,7 +13,6 @@ function main() {
     
 
     const btnLog =  document.querySelector('#b_acceder')
-    const btnLoad = document.querySelector('#b_load_paises')
     const btnSearch = document.querySelector('#b_libros')
     const btnGames = document.querySelector('#b_load_games')
     const btnprev = document.querySelector('#prev')
@@ -29,15 +28,13 @@ function main() {
         formReg.querySelectorAll('input').forEach(item => 
             item.addEventListener('focus', () => {onFocusManager(formReg)}))
         /* const aGender = formReg.querySelectorAll('[name="gender"]') */
-        formReg.querySelector('#b_register').addEventListener('click', onClickReg)
+        formReg.querySelector('#b_signup').addEventListener('click', onClickReg)
     }
     
-    if (btnLoad) {
-        btnLoad.addEventListener('click', onClickLoad)
-    }
     if (btnSearch){
         btnSearch.addEventListener('click', onClickSearch)
     }
+
     if (btnGames) {
         btnGames.addEventListener('click', onClickGames)
         nodoKey = document.querySelector('#api_key')
@@ -47,12 +44,16 @@ function main() {
     }
 
 
-    const hoy = (new Date()).toLocaleDateString()
-    document.querySelector('footer').innerHTML =  templFooter.render(hoy)
-
     const posicion = window.location.pathname.lastIndexOf('/') + 1
     const page = window.location.pathname.slice(posicion)
     document.querySelector('header').innerHTML = templHeader.render(page)
+    
+    const hoy = (new Date()).toLocaleDateString()
+    document.querySelector('footer').innerHTML =  templFooter.render(hoy)
+
+    if (page === 'signup.html') {
+        document.addEventListener('loadstart', onLoadSignup)
+    }
 
     function onClickLog () {
             const formLogin = document.querySelector('#f_login')
@@ -116,9 +117,9 @@ function main() {
                         }
                         break;
                     default:
-                        console.dir(item, item.validityState[0])
                         if (!item.checkValidity()) {
-                            const error = new Error(`Campo ${item.id} incorrecto`)
+                            //const error = new Error(`Campo ${item.id} incorrecto`)
+                            const error = new Error(item.validationMessage)
                             error.code = item.id
                             throw error
                         }
@@ -138,7 +139,10 @@ function main() {
                 case 'i_email':
                     errorMsg = 'Debe introducir un correo electrónico válido'
                     break;
-                case 'i_nombre':
+                case 'i_name':
+                    errorMsg = 'El nombre de usuario es obligatorio'
+                    break;
+                case 'i_surname':
                     errorMsg = 'El nombre de usuario es obligatorio'
                     break;
                 case 'i_passwd':
@@ -156,20 +160,10 @@ function main() {
         }
     }
 
-    function onClickLoad() {
+    function onLoadSignup() {
         const method = 'GET'
         const url = 'https://restcountries.eu/rest/v2/all'   
-        // https://restcountries.eu/rest/v2/name/{}
-        /* const http = new XMLHttpRequest()
-        console.log(http)
-        http.onreadystatechange = ajaxCallback
-        http.addEventListener('readystatechange', ajaxCallback)
-        http.open(method, url)
-        http.send(null) */
-
-        // fetch
-        // axios
-
+       
         fetch(url)
         .then( resp => {
             console.log(resp)
@@ -179,15 +173,15 @@ function main() {
             }
             return resp.json()
         })
-        .then( data =>  procesarPaises(data))
+        .then( data =>  populateCountries(data))
         .catch (error => alert(error.message))
     }
 
-    function procesarPaises(data) {
+    function populateCountries(data) {
         console.log(data)
-        const paises = data.map(item => item.name)
+        const countries = data.map(item => item.name)
         console.log(paises)
-        setSelectStrings('paises', paises )
+        setSelectItems('countries', countries )
     }
 
     function onClickSearch() {

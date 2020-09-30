@@ -84,7 +84,47 @@ main .jumbo {
 main form {
     display: flex;
     flex-direction: column;
+    padding: 1.5rem;
+    border: 1px solid rgb(4, 4, 79);
 }
+
+label {
+    font-weight: 100;
+}
+
+input, select {
+    border: 0.5px solid black;
+    border-radius: 3px;
+    height: 25px;
+    margin: 3px 0px;
+    font-size: medium;
+    font-weight: 100;
+}
+
+textarea {
+    border: 0.5px solid black;
+    border-radius: 3px;
+    margin: 3px 0px;
+    width: 75%;
+    font-size: medium;
+    font-weight: 100;
+    resize: none;
+}
+
+#b_signup {
+    border: 0.5px solid black;
+    border-radius: 3px;
+    width: 100%;
+    height: 40px;
+    font-size: larger;
+    font-weight: bold;
+}
+
+#error_msg {
+    color: red;
+    border: 0.1rem solid red;
+}
+
 .nodisplay {
     display: none !important;
 }
@@ -93,24 +133,13 @@ main form {
     visibility: hidden;
 }
 
+
+
 .mail {
     text-decoration: underline;
 }
 
-.question {
-    font-size: 1.2rem;
-    color: brown;
-    cursor: pointer;
-}
 
-.response {
-    font-style: italic;
-}
-
-#error_msg {
-    color: red;
-    border: 0.1rem solid red;
-}
 
 div.games {
     width: 80%;

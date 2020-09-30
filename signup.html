@@ -15,27 +15,56 @@
         <form id="f_register" action="">
             <div>
                 <div><label>Gender</label></div>
-                <input type="radio" id="male" name="gender" value="Male" required>
-                <label for="male">Male</label>
-                <input type="radio" id="mujer" name="gender" value="Female">
-                <label for="female">Female</label>
-                <input type="radio" id="other" name="gender" value="Other">
-                <label for="other">Other options</label>
+                <input type="radio" id="r_male" name="gender" value="Male" required>
+                <label for="r_male">Male</label>
+                <input type="radio" id="r_female" name="gender" value="Female">
+                <label for="r_female">Female</label>
+                <input type="radio" id="r_other" name="gender" value="Other">
+                <label for="r_other">Other options</label>
             </div>
             <div>
-                <input type="email" id="i_email" placeholder="Correo" required>
+                <input type="text" id="i_name" placeholder="Name" size="20" required>
+                <input type="text" id="i_surname" placeholder="Surname" size="30" required>
             </div>
             <div>
-                <input type="text" id="i_nombre" placeholder="Nombre" required>
+                <div><label for="s_country"> Nacionality</label></div>
+                <select id="s_country">
+                    <option></option>
+                </select>
+            </div>
+            <div class="nodisplay">
+                <div><label for="s_province"> Province</label></div>
+                <select id="s_province">
+                    <option></option>
+                </select>
             </div>
             <div>
-                <input type="password" id="i_passwd" placeholder="Contraseña" required>
+                <input type="email" id="i_email" placeholder="email"
+                    pattern="/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/" size="35" required>
+            </div>
+
+            <div>
+                <input type="password" id="i_passwd1" placeholder="Password" required>
+            </div>
+            <div>
+                <input type="password" id="i_passwd2" placeholder="Confirm Password" required>
+            </div>
+            <div>
+                <input type="text" id="i_apikey" placeholder="API key" size="25" required>
+            </div>
+            <div>
+                <label for="t_comments">Comments</label>
+            </div>
+            <div>
+                <textarea id="t_comments" name="comments" rows="4" maxlength="175">
+
+                </textarea>
             </div>
             <div>
                 <p id="error_msg" class="novisibility"></p>
             </div>
             <div>
-                <button type="button" id="b_register">Sign up</button>
+                <button type="button" id="b_signup">Sign up</button>
             </div>
         </form>
     </main>
