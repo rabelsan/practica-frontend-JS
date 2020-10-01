@@ -27,27 +27,28 @@
                 <input type="text" id="i_surname" placeholder="Surname" size="30" required>
             </div>
             <div>
-                <div><label for="s_country"> Nacionality</label></div>
-                <select id="s_country">
-                    <option></option>
+                <div><label for="s_countries"> Nacionality</label></div>
+                <select id="s_countries" required>
                 </select>
             </div>
             <div class="nodisplay">
-                <div><label for="s_province"> Province</label></div>
-                <select id="s_province">
+                <div><label for="s_provinces"> Province</label></div>
+                <select id="s_provinces">
                     <option></option>
                 </select>
             </div>
             <div>
-                <input type="email" id="i_email" placeholder="email"
-                    pattern="/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/" size="35" required>
+                <input type="email" id="i_email" placeholder="email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                    size="35" required>
             </div>
 
             <div>
-                <input type="password" id="i_passwd1" placeholder="Password" required>
+                <input type="password" id="i_passwd1" placeholder="Password" minlength="4" maxlength="10"
+                    pattern="(?=.*\d)(?=.*[A-Za-z]).{4,}" required>
             </div>
             <div>
-                <input type="password" id="i_passwd2" placeholder="Confirm Password" required>
+                <input type="password" id="i_passwd2" placeholder="Confirm Password" minlength="4" maxlength="10"
+                    required>
             </div>
             <div>
                 <input type="text" id="i_apikey" placeholder="API key" size="25" required>

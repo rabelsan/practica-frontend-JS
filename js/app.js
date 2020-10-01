@@ -10,9 +10,8 @@ function main() {
     
     //DOM nodes
     const formReg = document.querySelector('#f_register')
-    
+    const btnLog =  document.querySelector('#b_login')
 
-    const btnLog =  document.querySelector('#b_acceder')
     const btnSearch = document.querySelector('#b_libros')
     const btnGames = document.querySelector('#b_load_games')
     const btnprev = document.querySelector('#prev')
@@ -27,8 +26,10 @@ function main() {
     if (formReg) {
         formReg.querySelectorAll('input').forEach(item => 
             item.addEventListener('focus', () => {onFocusManager(formReg)}))
-        /* const aGender = formReg.querySelectorAll('[name="gender"]') */
+        const aGender = formReg.querySelectorAll('[name="gender"]') 
         formReg.querySelector('#b_signup').addEventListener('click', onClickReg)
+        console.dir(formReg.querySelector('#s_countries').length)
+        loadCountries()
     }
     
     if (btnSearch){
@@ -43,17 +44,13 @@ function main() {
         btnnext.addEventListener('click', () => {goToPage(+1)})
     }
 
-
+    //Header-Footer setup 
     const posicion = window.location.pathname.lastIndexOf('/') + 1
     const page = window.location.pathname.slice(posicion)
     document.querySelector('header').innerHTML = templHeader.render(page)
     
     const hoy = (new Date()).toLocaleDateString()
     document.querySelector('footer').innerHTML =  templFooter.render(hoy)
-
-    if (page === 'signup.html') {
-        document.addEventListener('loadstart', onLoadSignup)
-    }
 
     function onClickLog () {
             const formLogin = document.querySelector('#f_login')
@@ -102,7 +99,6 @@ function main() {
     }
 
     function validateRegister(form) {
-        console.log('form.checkValidity()',form.checkValidity())
         if(!form.checkValidity()) {
         const inputs = [...form.querySelectorAll('input')]
         try {
@@ -111,7 +107,7 @@ function main() {
                     case 'radio':
                         const aGender = [...form.querySelectorAll('[name="gender"]')]
                         if (!aGender[0].checkValidity()) {
-                            const error = new Error(`Campo ${item.name} incorrecto`)
+                            const error = new Error(`Item ${item.name} wrong`)
                             error.code = item.name
                             throw error
                         }
@@ -122,6 +118,14 @@ function main() {
                             const error = new Error(item.validationMessage)
                             error.code = item.id
                             throw error
+                        } else {
+                            //Passwords matching validation
+                            if (item.id === 'i_passwd2' && 
+                                item.value !== formReg.querySelector('#i_passwd1').value) {
+                                    const error = new Error('Password confirmation do not match')
+                                    error.code = 'i_passwd2'     
+                                    throw error       
+                            }
                         }
                         break;    
                 }
@@ -134,22 +138,28 @@ function main() {
             let errorMsg
             switch (error.code) {
                 case 'gender':
-                    errorMsg = 'Es necesario seleccionar un género'
+                    errorMsg = 'Gender required, please, select one option'
                     break;
                 case 'i_email':
-                    errorMsg = 'Debe introducir un correo electrónico válido'
+                    errorMsg = 'A valid email required'
                     break;
                 case 'i_name':
-                    errorMsg = 'El nombre de usuario es obligatorio'
+                    errorMsg = 'User name required'
                     break;
                 case 'i_surname':
-                    errorMsg = 'El nombre de usuario es obligatorio'
+                    errorMsg = 'Surname required'
                     break;
-                case 'i_passwd':
-                    errorMsg = 'La password es obligatoria'
+                case 'i_passwd1':
+                    errorMsg = 'Password must contain numbers and letters, and 4 or more characters'  
+                    break;
+                case 'i_passwd2':
+                    errorMsg = 'Password confirmation doest not match'
+                    break;
+                case 'i_apikey':
+                    errorMsg = 'API key is required'
                     break;
                 default:
-                    errorMsg = 'Se ha produido un error'
+                    errorMsg = 'Unknown error'
                     break;
             }
             //show error paragraph
@@ -160,7 +170,7 @@ function main() {
         }
     }
 
-    function onLoadSignup() {
+    function loadCountries() {
         const method = 'GET'
         const url = 'https://restcountries.eu/rest/v2/all'   
        
@@ -178,10 +188,8 @@ function main() {
     }
 
     function populateCountries(data) {
-        console.log(data)
         const countries = data.map(item => item.name)
-        console.log(paises)
-        setSelectItems('countries', countries )
+        setSelectItems('s_countries', countries )
     }
 
     function onClickSearch() {

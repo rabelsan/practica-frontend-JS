@@ -120,6 +120,15 @@ textarea {
     font-weight: bold;
 }
 
+#b_login {
+    border: 0.5px solid black;
+    border-radius: 3px;
+    width: 100%;
+    height: 40px;
+    font-size: larger;
+    font-weight: bold;
+}
+
 #error_msg {
     color: red;
     border: 0.1rem solid red;
