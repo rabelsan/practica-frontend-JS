@@ -1,9 +1,15 @@
 import { templFooter } from '../templates/footer.js'
 import { templHeader } from '../templates/header.js'
 import { KEY } from './config.js'
-import { setSelectItems } from './tools.js'
+import { loadSelectByAPI, setSelectItems } from './tools.js'
 
 function main() {
+    const SPProvinces = ["A Coruña", "Araba", "Albacete", "Alicante", "Almería", "Asturias", "Ávila", "Badajoz", "Baleares", 
+                         "Barcelona", "Burgos", "Cáceres", "Cádiz", "Cantabria", "Castellón", "Ciudad Real", "Córdoba", 
+                         "Cuenca", "Girona", "Granada", "Guadalajara", "Gipuzkoa", "Huelva", "Huesca", "Jaén", "La Rioja", 
+                         "Las Palmas", "León", "Lérida", "Lugo", "Madrid", "Málaga", "Murcia", "Navarra", "Ourense", "Palencia",
+                         "Pontevedra", "Salamanca", "Segovia", "Sevilla", "Soria", "Tarragona", "Santa Cruz de Tenerife", "Teruel",
+                         "Toledo", "Valencia", "Valladolid", "Bizcaia", "Zamora", "Zaragoza"]
     let nodoKey
     let filmsPage = 1
     const storeUsers = 'users'
@@ -26,10 +32,16 @@ function main() {
     if (formReg) {
         formReg.querySelectorAll('input').forEach(item => 
             item.addEventListener('focus', () => {onFocusManager(formReg)}))
+        formReg.querySelectorAll('select').forEach(item => 
+                item.addEventListener('focus', () => {onFocusManager(formReg)}))
+        formReg.querySelectorAll('textarea').forEach(item => 
+                    item.addEventListener('focus', () => {onFocusManager(formReg)}))
         const aGender = formReg.querySelectorAll('[name="gender"]') 
-        formReg.querySelector('#b_signup').addEventListener('click', onClickReg)
-        console.dir(formReg.querySelector('#s_countries').length)
-        loadCountries()
+        formReg.querySelector('#b_signup').addEventListener('click', onClickSignUp)
+        formReg.querySelector('#s_countries').addEventListener('change', onCountryChange)
+        //Load Selects
+        loadSelectByAPI('https://restcountries.eu/rest/v2/all', 's_countries')
+        setSelectItems('s_provinces', SPProvinces)
     }
     
     if (btnSearch){
@@ -76,12 +88,19 @@ function main() {
     }
 
     function onFocusManager(form) {
-        form.querySelector('p#error_msg').classList.add('novisibility')
+        form.querySelector('#error_msg').classList.add('novisibility')
     }
 
-    function onClickReg ()  {
+    function onCountryChange(ev) {
+        if (ev.srcElement.options[ev.srcElement.selectedIndex].value === 'Spain') {
+            console.dir(formReg.querySelector('#d_provinces').classList)
+            formReg.querySelector('#d_provinces').classList.remove('nodisplay')
+        }
+    }
+
+    function onClickSignUp()  {
         const formReg = document.querySelector('#f_register')
-        if (!validateRegister(formReg)) {
+        if (!validateSignUp(formReg)) {
             return 
         }
         const inputs = [...formReg.querySelectorAll('input')]
@@ -98,12 +117,12 @@ function main() {
         // window.location = 'index.html'
     }
 
-    function validateRegister(form) {
+    function validateSignUp(form) {
         if(!form.checkValidity()) {
-        const inputs = [...form.querySelectorAll('input')]
-        try {
-            inputs.forEach((item) => {
-                switch(item.type) {
+            const inputs = [...form.querySelectorAll('input')]
+            try {
+                inputs.forEach((item) => {
+                    switch(item.type) {
                     case 'radio':
                         const aGender = [...form.querySelectorAll('[name="gender"]')]
                         if (!aGender[0].checkValidity()) {
@@ -128,15 +147,11 @@ function main() {
                             }
                         }
                         break;    
-                }
-            })
-            return true  
-        } catch (error) {
-            console.log(error.message)
-            console.log(error.code)
-            
-            let errorMsg
-            switch (error.code) {
+                    }
+                })
+            } catch (error) {
+                let errorMsg
+                switch (error.code) {
                 case 'gender':
                     errorMsg = 'Gender required, please, select one option'
                     break;
@@ -161,35 +176,26 @@ function main() {
                 default:
                     errorMsg = 'Unknown error'
                     break;
-            }
-            //show error paragraph
-            form.querySelector('p').classList.remove('novisibility')
-            form.querySelector('p').innerHTML = errorMsg
+                }
+                //show error paragraph
+                form.querySelector('#error_msg').classList.remove('novisibility')
+                form.querySelector('#error_msg').innerHTML = errorMsg
+                return false
+            }    
+        }
+        //Countries/Provinces validation
+        const countries = form.querySelector('#s_countries')
+        const provinces = form.querySelector('#s_provinces')
+        if (!countries.selectedIndex) {
+            form.querySelector('#error_msg').classList.remove('novisibility')
+            form.querySelector('#error_msg').innerHTML = 'Country selection required'
+            return false
+        } else if ((countries.options[countries.selectedIndex].value === 'Spain') && (!provinces.selectedIndex)) {
+            form.querySelector('#error_msg').classList.remove('novisibility')
+            form.querySelector('#error_msg').innerHTML = 'The Province is required for Spain'
             return false
         }
-        }
-    }
-
-    function loadCountries() {
-        const method = 'GET'
-        const url = 'https://restcountries.eu/rest/v2/all'   
-       
-        fetch(url)
-        .then( resp => {
-            console.log(resp)
-            if (resp.status < 200 || resp.status >= 300) {
-                console.log(resp.statusText)
-                throw new Error('HTTP Error ' + resp.status)
-            }
-            return resp.json()
-        })
-        .then( data =>  populateCountries(data))
-        .catch (error => alert(error.message))
-    }
-
-    function populateCountries(data) {
-        const countries = data.map(item => item.name)
-        setSelectItems('s_countries', countries )
+        return true
     }
 
     function onClickSearch() {
