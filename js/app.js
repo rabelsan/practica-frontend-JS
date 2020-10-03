@@ -4,56 +4,51 @@ import { KEY } from './config.js'
 import { loadSelectByAPI, setSelectItems } from './tools.js'
 
 function main() {
-    const SPProvinces = ["A Coruña", "Araba", "Albacete", "Alicante", "Almería", "Asturias", "Ávila", "Badajoz", "Baleares", 
-                         "Barcelona", "Burgos", "Cáceres", "Cádiz", "Cantabria", "Castellón", "Ciudad Real", "Córdoba", 
+    const SPProvinces = ["A Coruña", "Albacete", "Alicante", "Almería", "Araba", "Asturias", "Ávila", "Badajoz", "Baleares", 
+                         "Barcelona", "Bizcaia", "Burgos", "Cáceres", "Cádiz", "Cantabria", "Castellón", "Ciudad Real", "Córdoba", 
                          "Cuenca", "Girona", "Granada", "Guadalajara", "Gipuzkoa", "Huelva", "Huesca", "Jaén", "La Rioja", 
                          "Las Palmas", "León", "Lérida", "Lugo", "Madrid", "Málaga", "Murcia", "Navarra", "Ourense", "Palencia",
                          "Pontevedra", "Salamanca", "Segovia", "Sevilla", "Soria", "Tarragona", "Santa Cruz de Tenerife", "Teruel",
-                         "Toledo", "Valencia", "Valladolid", "Bizcaia", "Zamora", "Zaragoza"]
-    let nodoKey
+                         "Toledo", "Valencia", "Valladolid", "Zamora", "Zaragoza"]
     let filmsPage = 1
     const storeUsers = 'users'
+    const storeSessionUser = 'loguser'
     
     //DOM nodes
-    const formReg = document.querySelector('#f_register')
-    const btnLog =  document.querySelector('#b_login')
-
-    const btnSearch = document.querySelector('#b_libros')
-    const btnGames = document.querySelector('#b_load_games')
+    const frmReg = document.querySelector('#f_register')
+    const frmLog =  document.querySelector('#f_login')
+    const divFilms = document.querySelector('div.films')
     const btnprev = document.querySelector('#prev')
-    const btnnext = document.querySelector('#next')
-
+    const btnnext = document.querySelector('#next')  
+    
+    //const btnSearch = document.querySelector('#b_libros')
+    
     
     //Event Handlers definition
 
-    if (btnLog) {
-        btnLog.addEventListener('click', onClickLog)
+    if (frmLog) {
+        frmLog.querySelectorAll('input').forEach(item => 
+            item.addEventListener('focus', () => {onFocusManager(frmLog)}))
+        frmLog.querySelector('#b_login').addEventListener('click', onClickLog)
     }
-    if (formReg) {
-        formReg.querySelectorAll('input').forEach(item => 
-            item.addEventListener('focus', () => {onFocusManager(formReg)}))
-        formReg.querySelectorAll('select').forEach(item => 
-                item.addEventListener('focus', () => {onFocusManager(formReg)}))
-        formReg.querySelectorAll('textarea').forEach(item => 
-                    item.addEventListener('focus', () => {onFocusManager(formReg)}))
-        const aGender = formReg.querySelectorAll('[name="gender"]') 
-        formReg.querySelector('#b_signup').addEventListener('click', onClickSignUp)
-        formReg.querySelector('#s_countries').addEventListener('change', onCountryChange)
+    if (frmReg) {
+        frmReg.querySelectorAll('input').forEach(item => 
+            item.addEventListener('focus', () => {onFocusManager(frmReg)}))
+        frmReg.querySelectorAll('select').forEach(item => 
+                item.addEventListener('focus', () => {onFocusManager(frmReg)}))
+        frmReg.querySelectorAll('textarea').forEach(item => 
+                    item.addEventListener('focus', () => {onFocusManager(frmReg)}))
+        frmReg.querySelector('#b_signup').addEventListener('click', onClickSignUp)
+        frmReg.querySelector('#s_countries').addEventListener('change', onCountryChange)
         //Load Selects
         loadSelectByAPI('https://restcountries.eu/rest/v2/all', 's_countries')
         setSelectItems('s_provinces', SPProvinces)
     }
     
-    if (btnSearch){
-        btnSearch.addEventListener('click', onClickSearch)
-    }
-
-    if (btnGames) {
-        btnGames.addEventListener('click', onClickGames)
-        nodoKey = document.querySelector('#api_key')
-        nodoKey.value = KEY
+    if (divFilms) {
         btnprev.addEventListener('click', () => {goToPage(-1)})
         btnnext.addEventListener('click', () => {goToPage(+1)})
+        loadFilms()
     }
 
     //Header-Footer setup 
@@ -65,25 +60,28 @@ function main() {
     document.querySelector('footer').innerHTML =  templFooter.render(hoy)
 
     function onClickLog () {
-            const formLogin = document.querySelector('#f_login')
-        
-        if (!validarForm(formLogin)) {
+        if (!validateForm(frmLog)) {
             return 
         }
         const users = window.localStorage.getItem(storeUsers) ?
         JSON.parse(window.localStorage.getItem(storeUsers)) : []
-        const inputs = [...formLogin.querySelectorAll('input')]
-
-    
-        let findUser = users.find( item => item.nombre.toUpperCase() == inputs[0].value.toUpperCase())
-        console.log(findUser)
+        const inputs = [...frmLog.querySelectorAll('input')]
+        
+        let findUser = users.find( item => item.email.toLowerCase() == inputs[0].value.toLowerCase())
         if (!findUser) {
-            console.log('Usuario no encontrado')
+            frmLog.querySelector('#error_msg').classList.remove('novisibility')
+            frmLog.querySelector('#error_msg').innerHTML = 'email not found!'
+            return
         } else  if (findUser.passwd !== inputs[1].value) {
-            console.log('Password incorrecta')
+            frmLog.querySelector('#error_msg').classList.remove('novisibility')
+            frmLog.querySelector('#error_msg').innerHTML = 'Wrong password'
+            return
         } else {
-            console.log('Usuario y password correctos')
-            window.location = 'usuario.html'  
+            //Save user APIKey in session storage 
+            //const users = window.sessionStorage.getItem(storeSessionAPI) ?
+            //JSON.parse(window.sessionStorage.getItem(storeSessionAPI)) : []
+            window.sessionStorage.setItem(storeSessionUser, JSON.stringify(findUser))
+            window.location = 'films.html'  
         }
     }
 
@@ -93,31 +91,78 @@ function main() {
 
     function onCountryChange(ev) {
         if (ev.srcElement.options[ev.srcElement.selectedIndex].value === 'Spain') {
-            console.dir(formReg.querySelector('#d_provinces').classList)
-            formReg.querySelector('#d_provinces').classList.remove('nodisplay')
+            frmReg.querySelector('#d_provinces').classList.remove('nodisplay')
+        } else {
+            frmReg.querySelector('#s_provinces').selectedIndex=0
+            frmReg.querySelector('#d_provinces').classList.add('nodisplay')
         }
+    }
+
+    function verifyAPIKey(APIKey) {
+        const method = 'GET'
+        const url = 'https://api.themoviedb.org/3/discover/movie?api_key='+APIKey+
+                     '&language='+navigator.language+'&sort_by=popularity.desc&include_adult=true&include_video=false&page=2'   
+        console.log(url)
+        fetch(url)
+        .then( resp => { (resp.status < 200 || resp.status >= 300) ? false : true })
+        .then( console.log(data))
+        .catch (error => alert(error.message))
     }
 
     function onClickSignUp()  {
-        const formReg = document.querySelector('#f_register')
-        if (!validateSignUp(formReg)) {
+        const frmReg = document.querySelector('#f_register')
+        if (!validateForm(frmReg)) {
             return 
         }
-        const inputs = [...formReg.querySelectorAll('input')]
-        const usuario = {
-            correo : inputs[0].value,
-            nombre : inputs[1].value,
-            passwd : inputs[2].value
+        //Countries/Provinces validation
+        const countries = frmReg.querySelector('#s_countries')
+        const provinces = frmReg.querySelector('#s_provinces')
+        if (!countries.selectedIndex) {
+            frmReg.querySelector('#error_msg').classList.remove('novisibility')
+            frmReg.querySelector('#error_msg').innerHTML = 'Country selection required'
+            return 
+        } else if ((countries.options[countries.selectedIndex].value === 'Spain') && (!provinces.selectedIndex)) {
+            frmReg.querySelector('#error_msg').classList.remove('novisibility')
+            frmReg.querySelector('#error_msg').innerHTML = 'The Province is required for Spain'
+            return 
+        }
+        const radios = [...frmReg.querySelectorAll('[name="gender"]')]
+        const inputs = [...frmReg.querySelectorAll('input')]
+        const selects = [...frmReg.querySelectorAll('select')]
+        const textareas = [...frmReg.querySelectorAll('textarea')]
+        const user = {
+            gender : radios.filter(item => item.checked)[0].value,
+            name : frmReg.querySelector('#i_name').value,
+            surname : frmReg.querySelector('#i_surname').value,
+            country : countries.options[countries.selectedIndex].value,
+            province : provinces.options[provinces.selectedIndex].value,
+            email : frmReg.querySelector('#i_email').value,
+            passwd : frmReg.querySelector('#i_passwd1').value,
+            apikey : frmReg.querySelector('#i_apikey').value,
+            comments : frmReg.querySelector('#t_comments').value
         }
         const users = window.localStorage.getItem(storeUsers) ?
-        JSON.parse(window.localStorage.getItem(storeUsers)) : []
-        users.push(usuario)
+            JSON.parse(window.localStorage.getItem(storeUsers)) : []
+        //In order to avoid duplicated emails
+        let emailReg = -1
+        for(var i=0; i<users.length; i++) {
+            if (users[i].email === user.email) { 
+                emailReg = i 
+            }
+        }
+        if (emailReg !== -1) {
+            users.splice(emailReg,1)
+        }
+        users.push(user)
         window.localStorage.setItem(storeUsers, JSON.stringify(users))
+        radios.forEach(item => item.checked = false)
         inputs.forEach(item => item.value = '')
-        // window.location = 'index.html'
+        selects.forEach(item => item.value = '')
+        textareas.forEach(item => item.value = '')
+        window.location = 'login.html'
     }
 
-    function validateSignUp(form) {
+    function validateForm(form) {
         if(!form.checkValidity()) {
             const inputs = [...form.querySelectorAll('input')]
             try {
@@ -138,12 +183,19 @@ function main() {
                             error.code = item.id
                             throw error
                         } else {
-                            //Passwords matching validation
-                            if (item.id === 'i_passwd2' && 
-                                item.value !== formReg.querySelector('#i_passwd1').value) {
-                                    const error = new Error('Password confirmation do not match')
-                                    error.code = 'i_passwd2'     
-                                    throw error       
+                            switch (item.id) {
+                                //Passwords matching validation
+                                case 'i_passwd2':
+                                    if (item.value !== frmReg.querySelector('#i_passwd1').value) {
+                                        const error = new Error('Password confirmation do not match')
+                                        error.code = 'i_passwd2'     
+                                        throw error
+                                    }
+                                    break;
+                                //Check API validity
+                                case 'i_apikey':
+                                    console.log('verifyAPIKey',verifyAPIKey(item.value))
+                                    break;       
                             }
                         }
                         break;    
@@ -156,13 +208,16 @@ function main() {
                     errorMsg = 'Gender required, please, select one option'
                     break;
                 case 'i_email':
-                    errorMsg = 'A valid email required'
+                    errorMsg = 'A valid email is required'
                     break;
                 case 'i_name':
                     errorMsg = 'User name required'
                     break;
                 case 'i_surname':
                     errorMsg = 'Surname required'
+                    break;
+                case 'i_passwd':
+                    errorMsg = 'Password required'  
                     break;
                 case 'i_passwd1':
                     errorMsg = 'Password must contain numbers and letters, and 4 or more characters'  
@@ -183,120 +238,72 @@ function main() {
                 return false
             }    
         }
-        //Countries/Provinces validation
-        const countries = form.querySelector('#s_countries')
-        const provinces = form.querySelector('#s_provinces')
-        if (!countries.selectedIndex) {
-            form.querySelector('#error_msg').classList.remove('novisibility')
-            form.querySelector('#error_msg').innerHTML = 'Country selection required'
-            return false
-        } else if ((countries.options[countries.selectedIndex].value === 'Spain') && (!provinces.selectedIndex)) {
-            form.querySelector('#error_msg').classList.remove('novisibility')
-            form.querySelector('#error_msg').innerHTML = 'The Province is required for Spain'
-            return false
-        }
         return true
     }
 
-    function onClickSearch() {
-        const clave = document.querySelector('#clave').value
-        if (!clave) {
-            return
-        }
-        let url = 'https://www.googleapis.com/books/v1/volumes'
-        url += '?q=intitle:' + clave
-        document.querySelector('#clave').value =''
+    function loadFilms() {
+        let loguser = window.sessionStorage.getItem(storeSessionUser) ? 
+                        JSON.parse(window.sessionStorage.getItem(storeSessionUser)) : []
+        let url = `https://api.themoviedb.org/3/discover/movie?api_key=${loguser.apikey}&language=${navigator.language}&sort_by=popularity.desc&include_adult=true&include_video=false`   
 
-        fetch(url)
-        .then( resp => {
-            console.log(resp)
-            if (resp.status < 200 || resp.status >= 300) {
-                console.log(resp.statusText)
-                throw new Error('HTTP Error ' + resp.status)
-            }
-            return resp.json()
-        })
-        .then( data => procesaLibros(data))
-        .catch (error => alert(error.message))
-    }
-
-    function procesaLibros(data) {
-
-        console.log(data.items)
-        const titulos = data.items.map(item => {
-            return {
-                id: item.id,
-                autores: item.volumeInfo.authors,
-                titulo: item.volumeInfo.title
-            }
-        })
-        console.log(titulos)
-    }
-
-    function onClickGames() {
-        let url = 'https://api-v3.igdb.com/games?fields=name' 
         if (filmsPage > 1) {
-            url += '&offset=' + 10*(filmsPage-1)
+            url += '&page=' + filmsPage
         } 
 
-        if (!nodoKey.value) {
-            alert('El API Key es necesario')
+        if (!loguser) {
+            alert('Internal session user error')
             return
         }
-        //url += '&api_key='+nodoKey.value
-        fetch(url, {
-            headers: {
-                myName: 'Alejandro',
-                'user-key': nodoKey.value
-            }
-        })
+        
+        fetch(url)
         .then( resp => {
-            console.log(resp)
             if (resp.status < 200 || resp.status >= 300) {
                 console.log(resp.statusText)
                 throw new Error('HTTP Error ' + resp.status)
             }
             return resp.json()
         })
-        .then( data => procesaJuegos(data))
+        .then( data => populateFilms(data))
         .catch (error => alert(error.message))
     }
 
-    function onClickOneGame(ev) {
+    function onClickOneFilm(ev) {
         let url = 'https://api-v3.igdb.com/games?fields=*&id='
         url += ev.target.innerHTML
-        console.log(url)
     }
 
-    function procesaJuegos(data) {
+    function populateFilms(data) {
+        console.log(typeof(data), data)
         if(!data) {
             return
         }
-        console.log(data)
         let html = ''
-        data.forEach(item => {
+        data.results.forEach(item => {
             html += `
             <tr>
-                <td class="celda_id">${item.id}</td>
-                <td>${item.name}</td>
+                <td class="cell_id">${item.id}</td>
+                <td>${item.title}</td>
+                <td>${item.release_date}</td>
+                <td>${item.adults ? 'Yes' : 'No'}</td>
+                <td>${item.popularity}</td>
             </tr>`
         })
-        document.querySelector('div.games').classList.remove('nodisplay')
-        document.querySelector('table.table_games tbody')
+        document.querySelector('div.films').classList.remove('novisibility')
+        document.querySelector('table.table_films tbody')
             .innerHTML = html
 
-        document.querySelectorAll('.celda_id').forEach(
-            item => item.addEventListener('click', onClickOneGame)
+        document.querySelectorAll('.cell_id').forEach(
+            item => item.addEventListener('click', onClickOneFilm)
         )
     }
 
     function goToPage(n) {
         filmsPage += n
-        onClickGames()
+        loadFilms()
         if (filmsPage > 1) {
-            btnprev.classList.remove('ocultar')
+            btnprev.classList.remove('novisibility')
         } else {
-            btnprev.classList.add('ocultar')
+            btnprev.classList.add('novisibility')
         }
 
 

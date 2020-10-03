@@ -74,9 +74,9 @@ main {
 }
 
 main .jumbo {
-    background-color: rgb(163, 165, 22) ;
+    background-color: rgb(34, 108, 194);
     color: bisque;
-    padding: 3rem;
+    padding: 1rem;
     font-size: 1.3rem;
     border-radius: 1rem;
 }
@@ -142,51 +142,48 @@ textarea {
     visibility: hidden;
 }
 
-
-
 .mail {
     text-decoration: underline;
 }
 
-
-
-div.games {
+div.films {
     width: 80%;
     margin: 0.5rem auto;
 }
   
-.table_games {
+.table_films {
     width: 100%;
     margin-bottom: 1rem;
+    border: 1px solid;
 }
 
-.table_games caption {
+.table_films caption {
     width: 100%;
     font-size: 1.4rem;
-    background-color: brown;
+    background-color: rgb(34, 108, 194);
     color: bisque;
     margin: 1rem auto;
     padding: 0.5rem 1rem;
 }
 
-.table_games tr:nth-of-type(2n) {
+.table_films tr:nth-of-type(2n) {
     background-color: bisque;
 }
 
-.table_games th, 
-.table_games td {
+.table_films th, 
+.table_films td {
     padding: 0.4rem 1rem;
 }
 
-.botones {
+.buttons {
     padding: 0 1rem;
     display: flex;
     justify-content: space-between;
 }
-.boton {
+.button {
     color: bisque;
     background-color: brown;
     cursor: pointer;
     padding: 0.3rem;
     
-}
+} 

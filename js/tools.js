@@ -15,14 +15,13 @@ export function loadSelectByAPI(url, selectId) {
 }
 
 function populateSelect(selectId, data) {
+    console.log(typeof(data), data)
     const values = data.map(item => item.name)
     setSelectItems(selectId, values )
 }
 
 export function setSelectItems(id, data) {   
     let html = '<option></option>'
-    console.log(typeof(data),data)
- 
     data.forEach(item => html += `
             <option value="${item}">${item}</option>`)
     document.querySelector('#'+id).innerHTML = html

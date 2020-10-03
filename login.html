@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,25 +8,30 @@
     <link rel="stylesheet" href="./css/style.css">
     <script type="module" src="./js/app.js"></script>
 </head>
+
 <body>
     <header></header>
     <main>
-        <p class="jumbo">Login</p>
+        <p class="jumbo">Login - Registered users</p>
         <form id="f_login" action="">
             <div>
-                <input type="text" id="i_nombre" placeholder="Nombre">
-            </div>  
-            <div>  
-                <input type="password" id="i_passwd" placeholder="Contraseña">
+                <input type="text" id="i_email" placeholder="email" required>
+            </div>
+            <div>
+                <input type="password" id="i_passwd" placeholder="Password" required>
             </div>
             <div>
                 <p></p>
             </div>
             <div>
-                <button type="button" id="b_login">Acceder</button>
+                <p id="error_msg" class="novisibility"></p>
+            </div>
+            <div>
+                <button type="button" id="b_login">Login</button>
             </div>
         </form>
     </main>
     <footer></footer>
 </body>
+
 </html>
