@@ -17,13 +17,11 @@ function main() {
     //DOM nodes
     const frmReg = document.querySelector('#f_register')
     const frmLog =  document.querySelector('#f_login')
-    const divFilms = document.querySelector('div.films')
+    const frmFilms = document.querySelector('#f_films')
     const btnprev = document.querySelector('#prev')
     const btnnext = document.querySelector('#next')  
-    
-    //const btnSearch = document.querySelector('#b_libros')
-    
-    
+        
+        
     //Event Handlers definition
 
     if (frmLog) {
@@ -45,19 +43,28 @@ function main() {
         setSelectItems('s_provinces', SPProvinces)
     }
     
-    if (divFilms) {
+    if (frmFilms) {
         btnprev.addEventListener('click', () => {goToPage(-1)})
         btnnext.addEventListener('click', () => {goToPage(+1)})
-        loadFilms()
+        frmFilms.querySelector('#b_search').addEventListener('click', onClickSearch)
     }
 
     //Header-Footer setup 
     const posicion = window.location.pathname.lastIndexOf('/') + 1
     const page = window.location.pathname.slice(posicion)
     document.querySelector('header').innerHTML = templHeader.render(page)
+    if (frmFilms) {
+        document.querySelectorAll('a#logout')[0].addEventListener('click', onClickLogout)
+        document.querySelector('p#loguser').innerHTML = window.sessionStorage.getItem(storeSessionUser) ?
+            `Welcome ${JSON.parse(window.sessionStorage.getItem(storeSessionUser)).name}` : ''
     
+    }
     const hoy = (new Date()).toLocaleDateString()
     document.querySelector('footer').innerHTML =  templFooter.render(hoy)
+
+    function onClickLogout () {
+        window.sessionStorage.removeItem(storeSessionUser)
+    }
 
     function onClickLog () {
         if (!validateForm(frmLog)) {
@@ -77,9 +84,8 @@ function main() {
             frmLog.querySelector('#error_msg').innerHTML = 'Wrong password'
             return
         } else {
-            //Save user APIKey in session storage 
-            //const users = window.sessionStorage.getItem(storeSessionAPI) ?
-            //JSON.parse(window.sessionStorage.getItem(storeSessionAPI)) : []
+            //Save logged user in session storage 
+            window.sessionStorage.removeItem(storeSessionUser)
             window.sessionStorage.setItem(storeSessionUser, JSON.stringify(findUser))
             window.location = 'films.html'  
         }
@@ -98,19 +104,8 @@ function main() {
         }
     }
 
-    function verifyAPIKey(APIKey) {
-        const method = 'GET'
-        const url = 'https://api.themoviedb.org/3/discover/movie?api_key='+APIKey+
-                     '&language='+navigator.language+'&sort_by=popularity.desc&include_adult=true&include_video=false&page=2'   
-        console.log(url)
-        fetch(url)
-        .then( resp => { (resp.status < 200 || resp.status >= 300) ? false : true })
-        .then( console.log(data))
-        .catch (error => alert(error.message))
-    }
-
     function onClickSignUp()  {
-        const frmReg = document.querySelector('#f_register')
+        //const frmReg = document.querySelector('#f_register')
         if (!validateForm(frmReg)) {
             return 
         }
@@ -126,6 +121,21 @@ function main() {
             frmReg.querySelector('#error_msg').innerHTML = 'The Province is required for Spain'
             return 
         }
+        //Passwords matching validation
+        if (frmReg.querySelector('#i_passwd1').value !== frmReg.querySelector('#i_passwd2').value) {
+            frmReg.querySelector('#error_msg').classList.remove('novisibility')
+            frmReg.querySelector('#error_msg').innerHTML = 'Password confirmation do not match'
+            return
+        }    
+        //Check API validity
+        let validAPIKey = false
+        verifyAPIKey(frmReg.querySelector('#i_apikey').value, validAPIKey)
+        if (!validAPIKey) {
+            frmReg.querySelector('#error_msg').classList.remove('novisibility')
+            frmReg.querySelector('#error_msg').innerHTML = 'The key is not valid for themoviedb API'
+            return       
+        }
+
         const radios = [...frmReg.querySelectorAll('[name="gender"]')]
         const inputs = [...frmReg.querySelectorAll('input')]
         const selects = [...frmReg.querySelectorAll('select')]
@@ -137,6 +147,7 @@ function main() {
             country : countries.options[countries.selectedIndex].value,
             province : provinces.options[provinces.selectedIndex].value,
             email : frmReg.querySelector('#i_email').value,
+            mobile : frmReg.querySelector('#i_mobile').value,
             passwd : frmReg.querySelector('#i_passwd1').value,
             apikey : frmReg.querySelector('#i_apikey').value,
             comments : frmReg.querySelector('#t_comments').value
@@ -165,6 +176,7 @@ function main() {
     function validateForm(form) {
         if(!form.checkValidity()) {
             const inputs = [...form.querySelectorAll('input')]
+            console.log(inputs)
             try {
                 inputs.forEach((item) => {
                     switch(item.type) {
@@ -182,22 +194,7 @@ function main() {
                             const error = new Error(item.validationMessage)
                             error.code = item.id
                             throw error
-                        } else {
-                            switch (item.id) {
-                                //Passwords matching validation
-                                case 'i_passwd2':
-                                    if (item.value !== frmReg.querySelector('#i_passwd1').value) {
-                                        const error = new Error('Password confirmation do not match')
-                                        error.code = 'i_passwd2'     
-                                        throw error
-                                    }
-                                    break;
-                                //Check API validity
-                                case 'i_apikey':
-                                    console.log('verifyAPIKey',verifyAPIKey(item.value))
-                                    break;       
-                            }
-                        }
+                        } 
                         break;    
                     }
                 })
@@ -210,6 +207,9 @@ function main() {
                 case 'i_email':
                     errorMsg = 'A valid email is required'
                     break;
+                case 'i_mobile':
+                        errorMsg = 'A valid mobile is required'
+                        break;
                 case 'i_name':
                     errorMsg = 'User name required'
                     break;
@@ -220,7 +220,7 @@ function main() {
                     errorMsg = 'Password required'  
                     break;
                 case 'i_passwd1':
-                    errorMsg = 'Password must contain numbers and letters, and 4 or more characters'  
+                    errorMsg = 'Password must contain numbers and letters, 4-10 characters'  
                     break;
                 case 'i_passwd2':
                     errorMsg = 'Password confirmation doest not match'
@@ -241,29 +241,41 @@ function main() {
         return true
     }
 
-    function loadFilms() {
-        let loguser = window.sessionStorage.getItem(storeSessionUser) ? 
-                        JSON.parse(window.sessionStorage.getItem(storeSessionUser)) : []
-        let url = `https://api.themoviedb.org/3/discover/movie?api_key=${loguser.apikey}&language=${navigator.language}&sort_by=popularity.desc&include_adult=true&include_video=false`   
+    function verifyAPIKey(APIKey, result) {
+        let url = `https://api.themoviedb.org/3/discover/movie?api_key=${APIKey}&page=1`   
+        fetch(url)
+        .then(resp => {return resp.json()})
+        .then(data => {result=true})
+        .catch (error => {result=false})
+    }
 
+    function onClickSearch() {
+        const rSortBy = [...frmFilms.querySelectorAll('[name="sort"]')]
+        const rSortByDir = [...frmFilms.querySelectorAll('[name="sortdir"]')]
+        let sortBy = rSortBy.filter(item => item.checked)[0].value
+        let sortByDir = rSortByDir.filter(item => item.checked)[0].value
+        let adults = frmFilms.querySelector('#c_adults').checked ? "true" : "false"
+        let logUser = window.sessionStorage.getItem(storeSessionUser) ? 
+                        JSON.parse(window.sessionStorage.getItem(storeSessionUser)) : []
+        let url = `https://api.themoviedb.org/3/discover/movie?api_key=${logUser.apikey}&language=${navigator.language}&sort_by=${sortBy}.${sortByDir}&include_adult=${adults}&include_video=false`   
         if (filmsPage > 1) {
             url += '&page=' + filmsPage
         } 
 
-        if (!loguser) {
-            alert('Internal session user error')
+        if (!logUser) {
+            alert('Internal error: loguser not valid!')
             return
         }
         
         fetch(url)
         .then( resp => {
             if (resp.status < 200 || resp.status >= 300) {
-                console.log(resp.statusText)
+                //console.log(resp.statusText)
                 throw new Error('HTTP Error ' + resp.status)
             }
             return resp.json()
         })
-        .then( data => populateFilms(data))
+        .then(data => populateFilms(data))
         .catch (error => alert(error.message))
     }
 
@@ -273,7 +285,6 @@ function main() {
     }
 
     function populateFilms(data) {
-        console.log(typeof(data), data)
         if(!data) {
             return
         }
@@ -288,10 +299,9 @@ function main() {
                 <td>${item.popularity}</td>
             </tr>`
         })
-        document.querySelector('div.films').classList.remove('novisibility')
-        document.querySelector('table.table_films tbody')
-            .innerHTML = html
-
+        document.querySelector('div.films').classList.remove('nodisplay')
+        document.querySelector('table.table_films tbody').innerHTML = html
+        btnnext.classList.remove('novisibility')
         document.querySelectorAll('.cell_id').forEach(
             item => item.addEventListener('click', onClickOneFilm)
         )
@@ -299,16 +309,13 @@ function main() {
 
     function goToPage(n) {
         filmsPage += n
-        loadFilms()
+        onClickSearch()
         if (filmsPage > 1) {
             btnprev.classList.remove('novisibility')
         } else {
             btnprev.classList.add('novisibility')
         }
-
-
     }
-
 }
 
 document.addEventListener('DOMContentLoaded', main)

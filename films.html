@@ -12,11 +12,37 @@
 <body>
     <header></header>
     <main>
+        <form id="f_films" action="">
+            <div>
+                <div>
+                    <div><label class="bold">Order & filters</label></div>
+                    <input type="radio" id="r_id" name="sort" value="id" required>
+                    <label for="r_id">ID</label>
+                    <input type="radio" id="r_title" name="sort" value="title" required>
+                    <label for="r_id">Title</label>
+                    <input type="radio" id="r_adults" name="sort" value="adults" required>
+                    <label for="r_id">Adults</label>
+                    <input type="radio" id="r_popularity" name="sort" value="popularity" checked="checked" required>
+                    <label for="r_id">Popularity</label>
+                </div>
+                <div>
+                    <input type="radio" id="r_asc" name="sortdir" value="asc" required>
+                    <label for="r_id">Ascending</label>
+                    <input type="radio" id="r_desc" name="sortdir" value="desc" checked="checked" required>
+                    <label for="r_id">Descending</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="c_adults" checked="checked">
+                    <label for="c_adults">Include adult</label>
+                </div>
+                <button type="button" id="b_search">Search</button>
+            </div>
+
+        </form>
         <div class="films nodisplay">
             <div class="buttons">
                 <div id="prev" class="button novisibility"><<</div>
                 <div id="next" class="button">>></div>
-                </div>
             </div>
             <table class="table_films ">
                 <caption>Bilboard list</caption>
@@ -34,7 +60,6 @@
             <div class="buttons">
                 <div id="prev" class="button novisibility"><<</div>
                 <div id="next" class="button">>></div>
-                </div>
             </div>
     </main>
     <footer></footer>

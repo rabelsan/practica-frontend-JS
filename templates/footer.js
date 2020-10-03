@@ -3,7 +3,7 @@ export const templFooter = {
 
         return `
             <address>Ramón Beltrán</address>
-            <p class="mail">rabelsan@gmail.com</p>
+            <p class="email">rabelsan@gmail.com</p>
             <p>${date}</p>
         `
     }

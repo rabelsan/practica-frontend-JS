@@ -18,7 +18,7 @@ export const templHeader = {
             case 'films.html':
                 title = 'BillboardJS - Films'
                 menu = `                
-                    <li><a href="./index.html">Logout</a></li>`
+                    <li><a id="logout" href="./index.html">Logout</a></li>`
                 break
             case 'apis.html':
                 menu = `                
@@ -34,8 +34,9 @@ export const templHeader = {
         }
         return `
             <h1>${title}</h1>
+                                <p id="loguser"></p>
+
             <div class="menu">
-                <p id="loggeduser"></p>
                 <ul>${menu}</ul>
             </div>`
     }

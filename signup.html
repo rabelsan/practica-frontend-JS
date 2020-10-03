@@ -37,11 +37,15 @@
                     <option></option>
                 </select>
             </div>
+
             <div>
                 <input type="email" id="i_email" placeholder="email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
                     size="35" required>
             </div>
-
+            <div>
+                <input type="text" id="i_mobile" placeholder="Mobile" minlength="9" maxlength="12"
+                    pattern="[0-9]{9,12}" required>
+            </div>
             <div>
                 <input type="password" id="i_passwd1" placeholder="Password" minlength="4" maxlength="10"
                     pattern="(?=.*\d)(?=.*[A-Za-z]).{4,}" required>
