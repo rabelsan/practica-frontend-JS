@@ -13,6 +13,7 @@ function main() {
     let filmsPage = 1
     const storeUsers = 'users'
     const storeSessionUser = 'loguser'
+    let validAPIKey = false
     
     //DOM nodes
     const frmReg = document.querySelector('#f_register')
@@ -38,6 +39,7 @@ function main() {
                     item.addEventListener('focus', () => {onFocusManager(frmReg)}))
         frmReg.querySelector('#b_signup').addEventListener('click', onClickSignUp)
         frmReg.querySelector('#s_countries').addEventListener('change', onCountryChange)
+        frmReg.querySelector('input#i_apikey').addEventListener('change',onAPIKeyChange)
         //Load Selects
         loadSelectByAPI('https://restcountries.eu/rest/v2/all', 's_countries')
         setSelectItems('s_provinces', SPProvinces)
@@ -104,6 +106,23 @@ function main() {
         }
     }
 
+    function onAPIKeyChange(ev) {
+
+        let url = `https://api.themoviedb.org/3/discover/movie?api_key=${ev.srcElement.value}&page=1`   
+        fetch(url)
+        .then(resp => {
+            if (resp.status < 200 || resp.status > 299) {                   
+                //throw new Error('HTTP Error ' + resp.status)
+                return []
+            }
+            return resp.json()
+        }).catch(error => {console.log(error.message)})
+        .then(data => { 
+            if (data) {validAPIKey=true}
+         })
+        .catch (error => {console.log(error.message)})
+    }
+
     function onClickSignUp()  {
         //const frmReg = document.querySelector('#f_register')
         if (!validateForm(frmReg)) {
@@ -128,13 +147,11 @@ function main() {
             return
         }    
         //Check API validity
-        let validAPIKey = false
-        verifyAPIKey(frmReg.querySelector('#i_apikey').value, validAPIKey)
         if (!validAPIKey) {
             frmReg.querySelector('#error_msg').classList.remove('novisibility')
             frmReg.querySelector('#error_msg').innerHTML = 'The key is not valid for themoviedb API'
             return       
-        }
+        }  
 
         const radios = [...frmReg.querySelectorAll('[name="gender"]')]
         const inputs = [...frmReg.querySelectorAll('input')]
@@ -176,7 +193,6 @@ function main() {
     function validateForm(form) {
         if(!form.checkValidity()) {
             const inputs = [...form.querySelectorAll('input')]
-            console.log(inputs)
             try {
                 inputs.forEach((item) => {
                     switch(item.type) {
@@ -239,14 +255,6 @@ function main() {
             }    
         }
         return true
-    }
-
-    function verifyAPIKey(APIKey, result) {
-        let url = `https://api.themoviedb.org/3/discover/movie?api_key=${APIKey}&page=1`   
-        fetch(url)
-        .then(resp => {return resp.json()})
-        .then(data => {result=true})
-        .catch (error => {result=false})
     }
 
     function onClickSearch() {

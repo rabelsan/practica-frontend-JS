@@ -1,11 +1,9 @@
 export function loadSelectByAPI(url, selectId) {
-    const method = 'GET'
     //const url = 'https://restcountries.eu/rest/v2/all'   
    
     fetch(url)
     .then( resp => {
-        if (resp.status < 200 || resp.status >= 300) {
-            console.log(resp.statusText)
+        if (resp.status < 200 || resp.status > 299) {
             throw new Error('HTTP Error ' + resp.status)
         }
         return resp.json()
@@ -15,7 +13,6 @@ export function loadSelectByAPI(url, selectId) {
 }
 
 function populateSelect(selectId, data) {
-    console.log(typeof(data), data)
     const values = data.map(item => item.name)
     setSelectItems(selectId, values )
 }
