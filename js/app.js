@@ -3,6 +3,9 @@ import { templHeader } from '../templates/header.js'
 import { KEY } from './config.js'
 import { loadSelectByAPI, setSelectItems } from './tools.js'
 
+/**
+* Contains all JavaScript code used by this site.
+*/
 function main() {
     const SPProvinces = ["A Coruña", "Albacete", "Alicante", "Almería", "Araba", "Asturias", "Ávila", "Badajoz", "Baleares", 
                          "Barcelona", "Bizcaia", "Burgos", "Cáceres", "Cádiz", "Cantabria", "Castellón", "Ciudad Real", "Córdoba", 
@@ -66,13 +69,18 @@ function main() {
     const hoy = (new Date()).toLocaleDateString()
     document.querySelector('footer').innerHTML =  templFooter.render(hoy)
 
-    function onClickFilm () {
-        console.log('click Film')
-    }
+    /**
+    * Removes session user information from window.sessionStorage object 
+    * when user press Logout menu option. 
+    **/
     function onClickLogout () {
         window.sessionStorage.removeItem(storeSessionUser)
     }
 
+    /**
+    * Validates user login data.
+    * Allow access to users previously registered and saves logged user data into the window.sessionStorage object. 
+    **/
     function onClickLog () {
         if (!validateForm(frmLog)) {
             return 
@@ -98,6 +106,11 @@ function main() {
         }
     }
 
+    /**
+    * Hides element with ID '#error_msg' in the requested form.
+    * This element ID is used to show validation errors.
+    * @param {Object} form DOM Form object 
+    **/
     function onFocusManager(form) {
         form.querySelector('#error_msg').classList.add('novisibility')
     }
@@ -111,6 +124,12 @@ function main() {
         }
     }
 
+    /**
+    * Validation of the user api-key for https://api.themoviedb.org.
+    * If the api-key is correct, validAPIKey var is set to true, otherwise, its value will be false.
+    * @param {Object} form DOM Form object 
+    * @see 'validAPIKey' variable
+    **/
     function onAPIKeyChange(ev) {
 
         let url = `https://api.themoviedb.org/3/discover/movie?api_key=${ev.srcElement.value}&page=1`   
@@ -125,6 +144,12 @@ function main() {
         }).catch(error => {console.log(error.message)})
     }
 
+    /**
+    * Invokes function validateForm() in order to validate all user register data.
+    * If valid, onClickSignUp() saves the user data in window.localStorage object
+    * and redirects the users to the ./login.html page.
+    * Otherwise, it requests again all wrong items. 
+    **/
     function onClickSignUp()  {
         //const frmReg = document.querySelector('#f_register')
         if (!validateForm(frmReg)) {
@@ -192,6 +217,11 @@ function main() {
         window.location = 'login.html'
     }
 
+    /**
+    * Validates all form items and generates a customized error management
+    * @para {object} form DOM form object
+    * @see '#error_msg' ID
+    **/
     function validateForm(form) {
         if(!form.checkValidity()) {
             const inputs = [...form.querySelectorAll('input')]
@@ -259,6 +289,15 @@ function main() {
         return true
     }
 
+    /**
+    * Requests to the API https://api.themoviedb.org a films list sorting and filtering as user has requested. 
+    * See query string parameters:
+    * @see 'api_key' 
+    * @see 'language' 
+    * @see 'sort_by' 
+    * @see 'include_adult' 
+    * @see 'page' parameter and 'filmsPage' variable
+    **/
     function onClickSearch() {
         const rSortBy = [...frmFilms.querySelectorAll('[name="sort"]')]
         const rSortByDir = [...frmFilms.querySelectorAll('[name="sortdir"]')]
@@ -289,6 +328,12 @@ function main() {
         .catch (error => alert(error.message))
     }
 
+    /**
+    * Requests to the API https://api.themoviedb.org details of the film clicked by user. 
+    * It the film details are alredy displayed, this functions hides them, otherwise it shows 
+    * the film image and the synopsis.
+    * @see 'ID' column event handler 
+    **/
     function onClickOneFilm(ev) {
         if (document.querySelector('.tr_' + ev.srcElement.textContent).classList.contains('nodisplay')) {
             let logUser = window.sessionStorage.getItem(storeSessionUser) ? 
@@ -310,6 +355,10 @@ function main() {
         }
     }
 
+    /**
+    * Shows the select film details provided by the API https://api.themoviedb.org. 
+    * @param {Object} data Data object array of the movie
+    **/
     function populateFilmDetails(data) {
         console.log(data.poster_path)
         console.log(data.overview)
@@ -318,6 +367,10 @@ function main() {
         document.querySelector('.tr_' + data.id).classList.remove('nodisplay')
     }
 
+    /**
+    * Populates the films list details provided by the API https://api.themoviedb.org. 
+    * @param {Object} data Films data object array (20 items per request)
+    **/
     function populateFilms(data) {
         if(!data) {
             return
@@ -346,7 +399,12 @@ function main() {
         )
     }
 
-    function goToPage(n) {
+    /**
+    * Allows move forward/backward of the current films page selected. 
+    * Manage the logic of the buttons Previous and Next and invokes onClickSearch() to refresh data. 
+    * @param {number} n Current page selection. See 'filmsPage' variable 
+    **/
+   function goToPage(n) {
         filmsPage += n
         onClickSearch()
         if (filmsPage > 1) {
