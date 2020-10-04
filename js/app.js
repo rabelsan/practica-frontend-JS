@@ -7,6 +7,7 @@ import { loadSelectByAPI, setSelectItems } from './tools.js'
 * Contains all JavaScript code used by this site.
 */
 function main() {
+    //Spanish provinces list. To be replace by API request if available
     const SPProvinces = ["A Coruña", "Albacete", "Alicante", "Almería", "Araba", "Asturias", "Ávila", "Badajoz", "Baleares", 
                          "Barcelona", "Bizcaia", "Burgos", "Cáceres", "Cádiz", "Cantabria", "Castellón", "Ciudad Real", "Córdoba", 
                          "Cuenca", "Girona", "Granada", "Guadalajara", "Gipuzkoa", "Huelva", "Huesca", "Jaén", "La Rioja", 
@@ -107,14 +108,19 @@ function main() {
     }
 
     /**
-    * Hides element with ID '#error_msg' in the requested form.
-    * This element ID is used to show validation errors.
+    * Hides element with ID '#error_msg' when a from element receives the focus.
+    * '#error_msg' is used to show validation errors.
     * @param {Object} form DOM Form object 
     **/
     function onFocusManager(form) {
         form.querySelector('#error_msg').classList.add('novisibility')
     }
 
+    /**
+    * Change event manager for county select element.
+    * For Spain, it displays the provinces select item. For other countries it is not required.
+    * @param {Object} ev Target event object 
+    **/
     function onCountryChange(ev) {
         if (ev.srcElement.options[ev.srcElement.selectedIndex].value === 'Spain') {
             frmReg.querySelector('#d_provinces').classList.remove('nodisplay')
