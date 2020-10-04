@@ -19,9 +19,10 @@ function main() {
     const frmReg = document.querySelector('#f_register')
     const frmLog =  document.querySelector('#f_login')
     const frmFilms = document.querySelector('#f_films')
-    const btnprev = document.querySelector('#prev')
-    const btnnext = document.querySelector('#next')  
-        
+    const btnprev1 = document.querySelector('#prev1')
+    const btnnext1 = document.querySelector('#next1')  
+    const btnprev2 = document.querySelector('#prev2')
+    const btnnext2 = document.querySelector('#next2')  
         
     //Event Handlers definition
 
@@ -46,8 +47,10 @@ function main() {
     }
     
     if (frmFilms) {
-        btnprev.addEventListener('click', () => {goToPage(-1)})
-        btnnext.addEventListener('click', () => {goToPage(+1)})
+        btnprev1.addEventListener('click', () => {goToPage(-1)})
+        btnnext1.addEventListener('click', () => {goToPage(+1)})
+        btnprev2.addEventListener('click', () => {goToPage(-1)})
+        btnnext2.addEventListener('click', () => {goToPage(+1)})
         frmFilms.querySelector('#b_search').addEventListener('click', onClickSearch)
     }
 
@@ -59,11 +62,13 @@ function main() {
         document.querySelectorAll('a#logout')[0].addEventListener('click', onClickLogout)
         document.querySelector('p#loguser').innerHTML = window.sessionStorage.getItem(storeSessionUser) ?
             `Welcome ${JSON.parse(window.sessionStorage.getItem(storeSessionUser)).name}` : ''
-    
     }
     const hoy = (new Date()).toLocaleDateString()
     document.querySelector('footer').innerHTML =  templFooter.render(hoy)
 
+    function onClickFilm () {
+        console.log('click Film')
+    }
     function onClickLogout () {
         window.sessionStorage.removeItem(storeSessionUser)
     }
@@ -112,15 +117,12 @@ function main() {
         fetch(url)
         .then(resp => {
             if (resp.status < 200 || resp.status > 299) {                   
-                //throw new Error('HTTP Error ' + resp.status)
-                return []
-            }
-            return resp.json()
+                //error 401 invalid apikey
+                validAPIKey = false
+            } else {
+                validAPIKey = true 
+            }    
         }).catch(error => {console.log(error.message)})
-        .then(data => { 
-            if (data) {validAPIKey=true}
-         })
-        .catch (error => {console.log(error.message)})
     }
 
     function onClickSignUp()  {
@@ -288,8 +290,32 @@ function main() {
     }
 
     function onClickOneFilm(ev) {
-        let url = 'https://api-v3.igdb.com/games?fields=*&id='
-        url += ev.target.innerHTML
+        if (document.querySelector('.tr_' + ev.srcElement.textContent).classList.contains('nodisplay')) {
+            let logUser = window.sessionStorage.getItem(storeSessionUser) ? 
+                            JSON.parse(window.sessionStorage.getItem(storeSessionUser)) : []
+            let url = `https://api.themoviedb.org/3/movie/${ev.srcElement.textContent}?api_key=${logUser.apikey}&language=${navigator.language}`   
+        
+            fetch(url)
+            .then( resp => {
+                if (resp.status < 200 || resp.status >= 300) {
+                    //console.log(resp.statusText)
+                    throw new Error('HTTP Error ' + resp.status)
+                }
+                return resp.json()
+            })
+            .then(data => populateFilmDetails(data))
+            .catch (error => alert(error.message))
+        } else {
+            document.querySelector('.tr_' + ev.srcElement.textContent).classList.add('nodisplay')   
+        }
+    }
+
+    function populateFilmDetails(data) {
+        console.log(data.poster_path)
+        console.log(data.overview)
+        document.querySelector('.td_img_' + data.id).innerHTML = "<img src=\"https://image.tmdb.org/t/p/original" + data.poster_path +"\" width=150 height=200>"
+        document.querySelector('.td_syn_' + data.id).innerHTML = data.overview
+        document.querySelector('.tr_' + data.id).classList.remove('nodisplay')
     }
 
     function populateFilms(data) {
@@ -299,18 +325,23 @@ function main() {
         let html = ''
         data.results.forEach(item => {
             html += `
-            <tr>
-                <td class="cell_id">${item.id}</td>
+            <tr class="tr_film">
+                <td id="td_id_${item.id}" class="td_id_film"><a href="#td_id_${item.id}" title="Click for details">${item.id}</td>
                 <td>${item.title}</td>
                 <td>${item.release_date}</td>
                 <td>${item.adults ? 'Yes' : 'No'}</td>
                 <td>${item.popularity}</td>
+            </tr>
+            <tr class="tr_${item.id} nodisplay">
+                <td class="td_img_${item.id}"></td>
+                <td class="td_syn_${item.id}" colspan="4"></td>
             </tr>`
         })
         document.querySelector('div.films').classList.remove('nodisplay')
         document.querySelector('table.table_films tbody').innerHTML = html
-        btnnext.classList.remove('novisibility')
-        document.querySelectorAll('.cell_id').forEach(
+        btnnext1.classList.remove('novisibility')
+        btnnext2.classList.remove('novisibility')
+        document.querySelectorAll('.td_id_film').forEach(
             item => item.addEventListener('click', onClickOneFilm)
         )
     }
@@ -319,9 +350,11 @@ function main() {
         filmsPage += n
         onClickSearch()
         if (filmsPage > 1) {
-            btnprev.classList.remove('novisibility')
+            btnprev1.classList.remove('novisibility')
+            btnprev2.classList.remove('novisibility')
         } else {
-            btnprev.classList.add('novisibility')
+            btnprev1.classList.add('novisibility')
+            btnprev2.classList.add('novisibility')
         }
     }
 }
